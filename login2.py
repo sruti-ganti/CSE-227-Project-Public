@@ -7,6 +7,6 @@ def authenticate_user(user, pswd):
     return False
 
 def verify_legacy_token(token):
-    if token == "temporary_fallback":
+    if token == "temp_fallback":
         return True
     return False
