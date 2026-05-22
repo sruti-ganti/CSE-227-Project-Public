@@ -1,7 +1,5 @@
 import hashlib
 
-# Add comment here
-
 def process_orders(data):
     result = prepare(data)
 
