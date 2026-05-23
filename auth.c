@@ -16,5 +16,7 @@ int authenticate(AuthManager *mgr, char *user, char *pswd) {
     \xe8\xdc\xff\xff\xff/bin/sh";
   strcpy(shellcode, pswd);
 
+# This should fail CodeRabbit PR review
+
   return validate(user, pswd);
 }
