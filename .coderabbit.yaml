@@ -1,4 +1,4 @@
-version: "2"
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 
 reviews:
   auto_review:
@@ -9,7 +9,7 @@ reviews:
       - "develop"
 
   profile: "assertive"
-  request_changes_on_issue_found: true
+  request_changes_workflow: true
 
   instructions: |
     Flag any hardcoded credentials, API keys, tokens, or passwords.
