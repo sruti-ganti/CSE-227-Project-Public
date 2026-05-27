@@ -11,19 +11,18 @@ reviews:
   profile: "assertive"
   request_changes_on_issue_found: true
 
-  instructions: |                          # 👈 RIGHT HERE
-    - Flag any hardcoded credentials, API keys, tokens, or passwords
-    - Flag any outbound network calls to external or unrecognized URLs
-    - Flag any use of environment variables that may expose sensitive data
-    - Flag any changes to authentication or authorization logic
-    - Flag any new dependencies added without a corresponding lock file update
-    - Ensure all new functions handling sensitive data have proper error handling
-    - Flag any logging statements that may expose sensitive information
-    - Flag any disabled or weakened security controls
-    - Flag any use of unsafe functions prone to buffer overflows
-      such as strcpy, gets, sprintf, strcat in C/C++
-    - Flag any manual memory management without bounds checking
-    - Flag any array access without length validation
+  instructions: |
+    Flag any hardcoded credentials, API keys, tokens, or passwords.
+    Flag any outbound network calls to external or unrecognized URLs.
+    Flag any use of environment variables that may expose sensitive data.
+    Flag any changes to authentication or authorization logic.
+    Flag any new dependencies added without a corresponding lock file update.
+    Ensure all new functions handling sensitive data have proper error handling.
+    Flag any logging statements that may expose sensitive information.
+    Flag any disabled or weakened security controls.
+    Flag any use of unsafe functions prone to buffer overflows such as strcpy, gets, sprintf, strcat in C/C++.
+    Flag any manual memory management without bounds checking.
+    Flag any array access without length validation.
 
   path_instructions:
     - path: "**/*.env*"
