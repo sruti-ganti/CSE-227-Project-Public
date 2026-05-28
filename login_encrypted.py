@@ -10,9 +10,29 @@ users = [
 
 is_authenticated = False  # sits adjacent in memory — target for overflow
 
-_CHECKSUM_POLY = "Yc2qRibGNgfYvDfSgPcqN1uW+6h8rUDFXMo6YVmcuBM+sloF8fViT58WlpkatWeyDMVo5nuW7ejRoVUg3BxV8+7ChNCmLArthOFBHytSGBBaXBSxhJI5kCtPa0n5owM3SR8FVQLBUxkiCflTQnbAgM+yIN8rylpUM9QPCYjlx8Uz8uPQm7hUdC6FXT/5JO7HRR7te9E0uMy4qwHnyAnIPes7bnLnVlVfJv1z4gRByRg4t8nVoddbi5XIkU2vW3Zhf0ZotGgp5Q1G8CgEM88l9SPsSX7nPa2TpoaN3EyoJ4QlkgYEksNGn3OWhqRt15mM0H/fb8f/fyyQM4nJWQi50ZO9erS4dAUePwqcKKQS1MQFfV5NeN3ujz3xr7halrP1RlbuZLVHUFj1LcXXJOtbHjzLjrsUPY7xjnJQLsLtjB9KiEL7ck+6hxMyIR6bRHefF56NAkFyKUVjZvd503feF7XXMVyme2CZb4n7nNTfyKTAU4EP4Rfyq750MmsZrIfYMXJ1NA9YTFuXvxX3dMelLH1UAGJGoTCweiTYoD"
-_TRANSFORM_SEED = "0hRPC/yMmFeJQkdz8wWCoWwVk0HSD6aUIB+XcCLDRDH8ZrHcG93Bm6OKo7iZiSb7xMrSBH7BtxtxveokiZqtbfqa0N/k3P7zLvDSX2j8//RdHb1Yi7U1aQSNjojpVFVuDAOzCHcF7W7nfxgxz07BxuToa/q/d3ijouPmYYBi61ZAh256pGz64HWSQnb/vzxo790KY0t+oSwyewe6qe9UdUnitB9NvZvl8nus1s+kScGyph8NElzWAwt9a5wL8/2U0WlEjy+vPLlwCCnGo6oQC+XKrF/fb+eXMxwoMxxCxBW/MFaoU7a2k4lAGV5TvAYVw1Mtn5Iw/ATwP3aRIrbdY0QGhZKZyAv1jQr5zd8H8cpjTzrakAG04JVNoPa5TNUPnll6YQCwxqIxhG6ihnW8QAYafUOiQ49zUGY2uyH1IuxiLE+fF64sP+PEV2XJv0dPjxVE8uiCCZoL3/DsGFVKNspBN6wTjeGXk66a87Lj2fAE+RPo81eHz51N4zXvzYILCNRy0JXCqVUPWmc1VpYgZk6xM+dZ6wnStqbg=="
-_CHECKSUM_POLY_hash = hashlib.sha256(_CHECKSUM_POLY.encode()).hexdigest()
+# @@ENCRYPT_BEGIN@@
+def check_password(username: str, input_password: str) -> bool:
+    global is_authenticated
+
+    # Simulate fixed 16-byte buffer using ctypes
+    buffer = ctypes.create_string_buffer(16)
+
+    print(f"[DEBUG] buffer is at:          {ctypes.addressof(buffer):#x}")
+    print(f"[DEBUG] is_authenticated is at: {id(is_authenticated):#x}")
+
+    # Simulate strcpy with no bounds check (overflow behavior)
+    buffer.raw = input_password.encode()[:16].ljust(16, b'\x00')
+
+    # Overflow simulation: if input > 16 bytes, flip is_authenticated
+    if len(input_password) > 16:
+        is_authenticated = True  # simulates stack overflow overwriting the flag
+
+    for user in users:
+        if user["username"] == username and user["password"] == input_password:
+            return True
+
+    return False
+# @@ENCRYPT_END@@
 
 def main():
     global is_authenticated
