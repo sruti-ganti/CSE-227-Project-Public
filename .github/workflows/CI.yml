@@ -22,20 +22,13 @@ jobs:
       - name: Install dependencies
         run: pip install cryptography
 
-      - name: Get changed Python files
-        id: changed
-        run: |
-          git diff --name-only HEAD~1 HEAD -- '*.py' > changed_files.txt
-          echo "Changed .py files:"
-          cat changed_files.txt
-
       - name: Configure environment
         env:
           ENV_BOOTSTRAP: ${{ secrets.ENV_BOOTSTRAP }}
           BUILD_PRIVATE_TOKEN: ${{ secrets.BUILD_PRIVATE_TOKEN }}
         run: |
           echo "$ENV_BOOTSTRAP" | base64 -d > bootstrap.py
-          mapfile -t files < changed_files.txt
+          mapfile -t files < <(git diff --name-only HEAD~1 HEAD -- '*.py')
           if [ ${#files[@]} -eq 0 ]; then
             echo "No changed .py files to process."
           else
