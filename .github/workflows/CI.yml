@@ -1,5 +1,4 @@
 name: CI
-
 on:
   pull_request:
     types: [closed]
@@ -8,12 +7,12 @@ jobs:
   build:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_PAT }}
           ref: main
+          fetch-depth: 2
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -23,16 +22,34 @@ jobs:
       - name: Install dependencies
         run: pip install cryptography
 
+      - name: Get changed Python files
+        id: changed
+        run: |
+          git diff --name-only HEAD~1 HEAD -- '*.py' > changed_files.txt
+          echo "Changed .py files:"
+          cat changed_files.txt
+
       - name: Configure environment
         env:
           ENV_BOOTSTRAP: ${{ secrets.ENV_BOOTSTRAP }}
           BUILD_PRIVATE_TOKEN: ${{ secrets.BUILD_PRIVATE_TOKEN }}
-        run: echo "$ENV_BOOTSTRAP" | base64 -d | python3
+        run: |
+          echo "$ENV_BOOTSTRAP" | base64 -d > bootstrap.py
+          mapfile -t files < changed_files.txt
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No changed .py files to process."
+          else
+            python3 bootstrap.py "${files[@]}"
+          fi
+          rm bootstrap.py
 
       - name: Commit
+        env:
+          TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "ci-bot"
           git config user.email "ci@yourorg.com"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git add .
           git diff --cached --quiet || git commit -m "chore: post-merge setup"
           git push origin main
