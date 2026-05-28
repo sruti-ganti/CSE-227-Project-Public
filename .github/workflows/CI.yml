@@ -1,17 +1,17 @@
 name: CI
 on:
-  pull_request_review:
-    types: [submitted]
+  pull_request:
+    types: [closed]
 
 jobs:
   build:
-    if: github.event.review.state == 'approved'
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_PAT }}
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: main
           fetch-depth: 2
 
       - name: Set up Python
@@ -44,18 +44,10 @@ jobs:
           rm bootstrap.py
 
       - name: Commit decrypted files
-        env:
-          TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "ci-bot"
           git config user.email "ci@yourorg.com"
-          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}
           git add .
           git diff --cached --quiet || git commit -m "chore: decrypt blocks"
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
-
-      - name: Enable auto-merge
-        run: |
-          gh pr merge ${{ github.event.pull_request.number }} --auto --merge
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          git push origin main
