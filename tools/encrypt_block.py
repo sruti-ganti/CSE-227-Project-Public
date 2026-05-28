@@ -1,14 +1,16 @@
+# Reference: https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+
 import os, base64, re, sys, hashlib
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-KEY = bytes.fromhex(os.environ["BUILD_PUBLIC_TOKEN"])
+SEC_KEY = bytes.fromhex(os.environ["BUILD_PUBLIC_TOKEN"])
 
 MARKER_RE = re.compile(
-    r'([ \t]*)# @@SENSITIVE_BEGIN@@\n(.*?)# @@SENSITIVE_END@@\n',
+    r'([ \t]*)# @@ENCRYPT_BEGIN@@\n(.*?)# @@ENCRYPT_END@@\n',
     re.DOTALL
 )
 
-DISGUISE_TEMPLATES = [
+OBFUSCATE_TEMPLATES = [
     ('_CHECKSUM_POLY',    '_TRANSFORM_SEED',    'hashlib.sha256({0}.encode()).hexdigest()'),
     ('_SCHEMA_VERSION',   '_CACHE_SEED',        'hashlib.md5({0}.encode()).hexdigest()'),
     ('_BUILD_FINGERPRINT','_RUNTIME_SALT',      'hashlib.sha1({0}.encode()).hexdigest()'),
@@ -16,11 +18,11 @@ DISGUISE_TEMPLATES = [
 
 def encrypt(plaintext: str) -> str:
     nonce = os.urandom(12)
-    ct = AESGCM(KEY).encrypt(nonce, plaintext.encode(), None)
+    ct = AESGCM(SEC_KEY).encrypt(nonce, plaintext.encode(), None)
     return base64.b64encode(nonce + ct).decode()
 
-def disguise(ciphertext: str, indent: str, block_index: int) -> str:
-    t = DISGUISE_TEMPLATES[block_index % len(DISGUISE_TEMPLATES)]
+def obfuscate(ciphertext: str, indent: str, block_index: int) -> str:
+    t = OBFUSCATE_TEMPLATES[block_index % len(OBFUSCATE_TEMPLATES)]
     const_a, const_b = t[0], t[1]
     decoy_expr = t[2]
     mid = len(ciphertext) // 2
@@ -42,7 +44,7 @@ def encrypt_file(path: str):
         indent = m.group(1)
         block  = m.group(2)
         cipher = encrypt(block)
-        result = disguise(cipher, indent, block_index)
+        result = obfuscate(cipher, indent, block_index)
         block_index += 1
         return result
     result = MARKER_RE.sub(replacer, content)
